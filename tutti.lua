@@ -1,9 +1,9 @@
 mxsamples = include 'mx.samples/lib/mx.samples'
+Formatters = require 'formatters'
+
 engine.name = "MxSamples"
-skeys = mxsamples:new()
 
 N_INSTRUMENTS = 4  -- number of instruments to use
-
 midi_devices = {}  -- MIDI device names, indexed 1-n (for n *connected* devices)
 device_midi = {}  -- MIDI connection for device indexed in `midi_devices`
 inst_midi = {}  -- MIDI device connections for each instrument
@@ -12,6 +12,8 @@ instruments = {}  -- list of downloaded instruments (must be updated)
 -- ========================================================================== --
 -- INIT                                                                       --
 -- ========================================================================== --
+
+skeys = mxsamples:new()
 
 function init()
   define_midi()
@@ -184,12 +186,23 @@ end
 -- play MIDI message `data` (`.to_msg`) on the instrument with name `instrument`
 -- (adapted from @schollz's `setup_midi` function)
 function play_midi(instrument, data)
+
+  play_data = {
+    name = instrument,
+    midi = data.note,
+    velocity = data.velocity or 64
+  }
+
+  for i,param in ipairs({
+    "amp", "pan", "attack", "decay", "sustain", "release",
+    "transpose_midi", "transpose_sample", "tune", "lpf_mxsamples",
+    "hpf_mxsamples", "reverb_send", "delay_send", "sample_start",
+    "play_release"}) do
+    play_data[param] = params:get(i .. "_" .. param)
+  end
+
   if data.type == "note_on" then
-    skeys:on({
-      name=instrument,
-      midi=data.note,
-      velocity=data.velocity
-    })
+    skeys:on(play_data)
 
   elseif data.type == "note_off" then
     skeys:off({
@@ -207,7 +220,7 @@ function play_midi(instrument, data)
       val = 0
     end
 
-    if params:get(instrument .. "pedal_mode") == 1 then
+    if params:get(instrument .. "_pedal_mode") == 1 then
       engine.mxsamples_sustain(val)
     else
       engine.mxsamples_sustenuto(val)
