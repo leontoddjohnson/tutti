@@ -60,82 +60,86 @@ function add_instrument_params()
     params:add {
       type='control',
       id=inst .. "_amp",
-      name="amp",
+      name=inst .. " amp",
     controlspec=controlspec.new(0,10,'lin',0,1.0,'amp')}
     params:add {
       type='control',
       id=inst .. "_pan",
-      name="pan",
+      name=inst .. " pan",
     controlspec=controlspec.new(-1,1,'lin',0,0)}
     params:add {
       type='control',
       id=inst .. "_attack",
-      name="attack",
+      name=inst .. " attack",
     controlspec=controlspec.new(0,10,'lin',0,0,'s')}
     params:add {
       type='control',
       id=inst .. "_decay",
-      name="decay",
+      name=inst .. " decay",
     controlspec=controlspec.new(0,10,'lin',0,1,'s')}
     params:add {
       type='control',
       id=inst .. "_sustain",
-      name="sustain",
+      name=inst .. " sustain",
     controlspec=controlspec.new(0,2,'lin',0,0.9,'amp')}
     params:add {
       type='control',
       id=inst .. "_release",
-      name="release",
+      name=inst .. " release",
     controlspec=controlspec.new(0,10,'lin',0,2,'s')}
     params:add {
       type='control',
       id=inst .. "_transpose_midi",
-      name="transpose midi",
+      name=inst .. " transpose midi",
     controlspec=controlspec.new(-24,24,'lin',0,0,'note',1/48)}
     params:add {
       type='control',
       id=inst .. "_transpose_sample",
-      name="transpose sample",
+      name=inst .. " transpose sample",
     controlspec=controlspec.new(-24,24,'lin',0,0,'note',1/48)}
     params:add {
       type='control',
       id=inst .. "_tune",
-      name="tune sample",
+      name=inst .. " tune sample",
     controlspec=controlspec.new(-100,100,'lin',0,0,'cents',1/200)}
     params:add {
       type='control',
       id=inst .. "_lpf_mxsamples",
-      name='low-pass filter',
+      name=inst .. " low-pass filter",
       controlspec=filter_freq,
       formatter=Formatters.format_freq}
     params:add {
       type='control',
       id=inst .. "_hpf_mxsamples",
-      name='high-pass filter',
+      name=inst .. " high-pass filter",
       controlspec=controlspec.new(20,20000,'exp',0,20,'Hz'),
       formatter=Formatters.format_freq}
     params:add {
       type='control',
       id=inst .. "_reverb_send",
-      name="reverb send",
+      name=inst .. " reverb send",
     controlspec=controlspec.new(0,100,'lin',0,0,'%',1/100)}
     params:add {
       type='control',
       id=inst .. "_delay_send",
-      name="delay send",
+      name=inst .. " delay send",
     controlspec=controlspec.new(0,100,'lin',0,0,'%',1/100)}
     params:add {
       type='control',
       id=inst .. "_sample_start",
-      name="sample start",
+      name=inst .. " sample start",
     controlspec=controlspec.new(0,1000,'lin',0,0,'ms',1/1000)}
     params:add {
       type='control',
       id=inst .. "_play_release",
-      name="play release prob",
+      name=inst .. " play release prob",
     controlspec=controlspec.new(0,100,'lin',0,0,'%',1/100)}
-    params:add_option(inst .. "_scale_velocity","velocity sensitivity",{"delicate","normal","stiff","fixed"},4)
-    params:add_option(inst .. "_pedal_mode","pedal mode",{"sustain","sostenuto"},1)
+    params:add_option(inst .. "_scale_velocity",
+      inst .. " velocity sensitivity",
+      {"delicate","normal","stiff","fixed"},4)
+    params:add_option(inst .. "_pedal_mode",
+      inst .. " pedal mode",
+      {"sustain","sostenuto"},1)
   end
 
   params:add {
@@ -148,6 +152,7 @@ function add_instrument_params()
       engine.mxsamples_delay_feedback(x/100)
     end
   end)
+
   params:add_option("mxsamples_delay_rate","delay rate",delay_rates_names,1)
   params:set_action("mxsamples_delay_rate",function(x)
     if engine.name=="MxSamples" then
