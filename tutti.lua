@@ -55,7 +55,7 @@ function add_instrument_params()
 
   -- add parameters
   for inst = 1,N_INSTRUMENTS do
-    params:add_group("instrument " .. inst, 17)
+    params:add_group("instrument " .. inst, 18)
 
     params:add {
       type='control',
@@ -104,13 +104,13 @@ function add_instrument_params()
     controlspec=controlspec.new(-100,100,'lin',0,0,'cents',1/200)}
     params:add {
       type='control',
-      id=inst .. "_lpf_mxsamples",
+      id=inst .. "_lpf",
       name=inst .. " low-pass filter",
       controlspec=filter_freq,
       formatter=Formatters.format_freq}
     params:add {
       type='control',
-      id=inst .. "_hpf_mxsamples",
+      id=inst .. "_hpf",
       name=inst .. " high-pass filter",
       controlspec=controlspec.new(20,20000,'exp',0,20,'Hz'),
       formatter=Formatters.format_freq}
@@ -118,12 +118,12 @@ function add_instrument_params()
       type='control',
       id=inst .. "_reverb_send",
       name=inst .. " reverb send",
-    controlspec=controlspec.new(0,100,'lin',0,0,'%',1/100)}
+    controlspec=controlspec.UNIPOLAR}
     params:add {
       type='control',
       id=inst .. "_delay_send",
       name=inst .. " delay send",
-    controlspec=controlspec.new(0,100,'lin',0,0,'%',1/100)}
+    controlspec=controlspec.UNIPOLAR}
     params:add {
       type='control',
       id=inst .. "_sample_start",
@@ -134,6 +134,11 @@ function add_instrument_params()
       id=inst .. "_play_release",
       name=inst .. " play release prob",
     controlspec=controlspec.new(0,100,'lin',0,0,'%',1/100)}
+    params:add {
+      type = "control",
+      id = inst .. "_noise_level",
+      name = inst .. " noise level",
+    controlspec = controlspec.new(0, 10, 'lin', 0, 0, 'x', 0.01)}
     params:add_option(inst .. "_scale_velocity",
       inst .. " velocity sensitivity",
       {"delicate","normal","stiff","fixed"},4)
@@ -187,9 +192,9 @@ function play_midi(instrument_i, data)
 
   for i,param in ipairs({
     "amp", "pan", "attack", "decay", "sustain", "release",
-    "transpose_midi", "transpose_sample", "tune", "lpf_mxsamples",
-    "hpf_mxsamples", "reverb_send", "delay_send", "sample_start",
-    "play_release"}) do
+    "transpose_midi", "transpose_sample", "tune", "lpf",
+    "hpf", "reverb_send", "delay_send", "sample_start",
+    "play_release", "noise_level"}) do
     play_data[param] = params:get(instrument_i .. "_" .. param)
   end
 
