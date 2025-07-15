@@ -38,6 +38,9 @@ function init()
       1, 16, 1)
   end
 
+  params:add_separator("instrument settings")
+  add_instrument_params()
+
 end
 
 
@@ -49,13 +52,10 @@ end
 -- (adapted from @schollz's `MxSamples:new` code)
 function add_instrument_params()
   local filter_freq = controlspec.new(20,20000,'exp',0,20000,'Hz')
-  local delay_rates_names = {
-    "whole-note","half-note","quarter note","eighth note","sixteenth note","thirtysecond"}
-  local delay_rates = {4,2,1,1/2,1/4,1/8,1/16}
 
   -- add parameters
   for inst = 1,N_INSTRUMENTS do
-    params:add_group("instrument " .. inst, 19)
+    params:add_group("instrument " .. inst, 17)
 
     params:add {
       type='control',
@@ -142,23 +142,6 @@ function add_instrument_params()
       {"sustain","sostenuto"},1)
   end
 
-  params:add {
-    type='control',
-    id="mxsamples_delay_times",
-    name="delay iterations",
-  controlspec=controlspec.new(0,100,'lin',0,1,'beats',1/100)}
-  params:set_action("mxsamples_delay_times",function(x)
-    if engine.name=="MxSamples" then
-      engine.mxsamples_delay_feedback(x/100)
-    end
-  end)
-
-  params:add_option("mxsamples_delay_rate","delay rate",delay_rates_names,1)
-  params:set_action("mxsamples_delay_rate",function(x)
-    if engine.name=="MxSamples" then
-      engine.mxsamples_delay_beats(delay_rates[x])
-    end
-  end)
 end
 
 -- determine connected MIDI devices, and save ID mapping.
@@ -171,14 +154,17 @@ function define_midi()
       device_midi[n] = midi.connect(midi.devices[i].port)
       device_midi[n].event = function(data)
         local d = midi.to_msg(data)
-        local instrument
+        local device = midi.devices[i].name
+        local inst_device = nil
+
+        -- print("MIDI:" .. d.note .. " [" .. d.ch .. "] -- " .. d.type)
 
         for inst=1,N_INSTRUMENTS do
-          instrument = params:get("inst_" .. inst .. "_name")
+          inst_device = midi_devices[params:get("inst_" .. inst .. "_device")]
 
           if d.ch == params:get("inst_" .. inst .. "_channel")
-            and n == params:get("inst_" .. inst .. "_device") then
-            play_midi(instrument, d)
+            and inst_device == device then
+            play_midi(inst, d)
           end
         end
       end
@@ -190,7 +176,8 @@ end
 
 -- play MIDI message `data` (`.to_msg`) on the instrument with name `instrument`
 -- (adapted from @schollz's `setup_midi` function)
-function play_midi(instrument, data)
+function play_midi(instrument_i, data)
+  local instrument = params:string("inst_" .. instrument_i .. "_name")
 
   play_data = {
     name = instrument,
@@ -203,7 +190,7 @@ function play_midi(instrument, data)
     "transpose_midi", "transpose_sample", "tune", "lpf_mxsamples",
     "hpf_mxsamples", "reverb_send", "delay_send", "sample_start",
     "play_release"}) do
-    play_data[param] = params:get(i .. "_" .. param)
+    play_data[param] = params:get(instrument_i .. "_" .. param)
   end
 
   if data.type == "note_on" then
@@ -278,3 +265,10 @@ end
 -- ========================================================================== --
 -- UI                                                                    --
 -- ========================================================================== --
+
+function redraw()
+  screen.clear()
+  screen.move(60, 32)
+  screen.text_center("See PARAMS/EDIT ...")
+  screen.update()
+end
